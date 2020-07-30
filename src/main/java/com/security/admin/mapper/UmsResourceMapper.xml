@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.security.admin.mapper.UmsResourceMapper">
+    <resultMap id="ResultMap" type="com.security.admin.model.UmsResource">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime" />  <!-- 创建时间 datetime -->
+        <result column="name" property="name" />  <!-- 资源名称 varchar(200) -->
+        <result column="url" property="url" />  <!-- 资源URL varchar(200) -->
+        <result column="description" property="description" />  <!-- 描述 varchar(500) -->
+        <result column="category_id" property="categoryId" />  <!-- 资源分类ID bigint(20) -->
+    </resultMap>
+    <!-- 自定义操作 -->
+    <select id="getResourceList" resultMap="ResultMap" parameterType="java.lang.Long">
+        SELECT
+            ur.id id,
+            ur.create_time createTime,
+            ur.`name` `name`,
+            ur.url url,
+            ur.description description,
+            ur.category_id categoryId
+        FROM
+            ums_admin_role_relation ar
+                LEFT JOIN ums_role r ON ar.role_id = r.id
+                LEFT JOIN ums_role_resource_relation rrr ON r.id = rrr.role_id
+                LEFT JOIN ums_resource ur ON ur.id = rrr.resource_id
+        WHERE
+            ar.admin_id = #{adminId}
+          AND ur.id IS NOT NULL
+        GROUP BY
+            ur.id
+    </select>
+
+    <!-- 根据主键查询 -->
+    <select id="selectById" resultMap="ResultMap" parameterType="java.lang.Long">
+        select id, create_time, name, url, description, category_id
+        from ums_resource where id = #{id}
+    </select>
+    <!-- 根据主键查询数据列表 -->
+    <select id="selectByIds" resultMap="ResultMap" parameterType="java.util.List">
+        select id, create_time, name, url, description, category_id
+        from ums_resource where	id in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        order by id
+    </select>
+    <!-- 根据条件查询 -->
+    <select id="selectList" resultMap="ResultMap" parameterType="com.security.admin.model.UmsResource">
+        select id, create_time, name, url, description, category_id
+        from ums_resource
+        <where>
+            <if test="id != null">and id = #{id}</if>
+            <if test="createTime != null">and create_time = #{createTime}</if>
+            <if test="name != null">and name = #{name}</if>
+            <if test="url != null">and url = #{url}</if>
+            <if test="description != null">and description = #{description}</if>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+        </where>
+        <choose>
+            <when test="order != null">
+                order by ${order}
+            </when>
+            <otherwise>
+                order by id
+            </otherwise>
+        </choose>
+    </select>
+    <!-- 根据条件判断数据是否存在 -->
+    <select id="exists" resultMap="ResultMap" parameterType="com.security.admin.model.UmsResource">
+        select id, create_time, name, url, description, category_id
+        from ums_resource
+        <where>
+            <if test="id != null">and id = #{id}</if>
+            <if test="createTime != null">and create_time = #{createTime}</if>
+            <if test="name != null">and name = #{name}</if>
+            <if test="url != null">and url = #{url}</if>
+            <if test="description != null">and description = #{description}</if>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+        </where>
+    </select>
+    <!-- 新增数据 -->
+    <insert id="save" parameterType="com.security.admin.model.UmsResource" useGeneratedKeys="true" keyProperty="id">
+        insert into ums_resource
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null">id, </if>
+            <if test="createTime != null">create_time, </if>
+            <if test="name != null">name, </if>
+            <if test="url != null">url, </if>
+            <if test="description != null">description, </if>
+            <if test="categoryId != null">category_id, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null">#{id}, </if>
+            <if test="createTime != null">#{createTime}, </if>
+            <if test="name != null">#{name}, </if>
+            <if test="url != null">#{url}, </if>
+            <if test="description != null">#{description}, </if>
+            <if test="categoryId != null">#{categoryId}, </if>
+        </trim>
+    </insert>
+    <!-- 批量新增数据 -->
+    <insert id="saveBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        <foreach collection="list" item="item" index="index" separator=";">
+            insert into ums_resource
+            <trim prefix="(" suffix=")" suffixOverrides="," >
+                <if test="item.id != null">id, </if>
+                <if test="item.createTime != null">create_time, </if>
+                <if test="item.name != null">name, </if>
+                <if test="item.url != null">url, </if>
+                <if test="item.description != null">description, </if>
+                <if test="item.categoryId != null">category_id, </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides="," >
+                <if test="item.id != null">#{item.id}, </if>
+                <if test="item.createTime != null">#{item.createTime}, </if>
+                <if test="item.name != null">#{item.name}, </if>
+                <if test="item.url != null">#{item.url}, </if>
+                <if test="item.description != null">#{item.description}, </if>
+                <if test="item.categoryId != null">#{item.categoryId}, </if>
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新数据 -->
+    <update id="update" parameterType="com.security.admin.model.UmsResource">
+        update ums_resource
+        <set>
+            <if test="id != null">id = #{id}, </if>
+            <if test="createTime != null">create_time = #{createTime}, </if>
+            <if test="name != null">name = #{name}, </if>
+            <if test="url != null">url = #{url}, </if>
+            <if test="description != null">description = #{description}, </if>
+            <if test="categoryId != null">category_id = #{categoryId}, </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!-- 批量更新数据 -->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update ums_resource
+            <set>
+                <if test="item.id != null">id = #{item.id}, </if>
+                <if test="item.createTime != null">create_time = #{item.createTime}, </if>
+                <if test="item.name != null">name = #{item.name}, </if>
+                <if test="item.url != null">url = #{item.url}, </if>
+                <if test="item.description != null">description = #{item.description}, </if>
+                <if test="item.categoryId != null">category_id = #{item.categoryId}, </if>
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 逻辑删除数据 -->
+    <update id="cancel" parameterType="com.security.admin.model.UmsResource">
+        update ums_resource
+        <set>
+            flag = 0,
+        </set>
+        where id = #{id}
+    </update>
+    <!-- 批量逻辑删除数据 -->
+    <update id="cancelBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update ums_resource
+            <set>
+                flag = 0,
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 物理删除数据 -->
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from ums_resource where id = #{id}
+    </delete>
+    <!-- 批量物理删除数据 -->
+    <delete id="deleteBatch" parameterType="java.util.List">
+        delete from ums_resource where id in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,47 @@
+server:
+    port: 8001
+spring:
+    application:
+        name: microservice-platform-admin
+logging:
+    level:
+        root: INFO
+        org.hibernate: INFO
+        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+        org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
+        com.security.admin: ERROR
+eureka:
+    instance:
+        prefer-ip-address: true
+        instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+        health-check-url: /health
+    client:
+        healthcheck:
+            enabled: true
+        service-url:
+            defaultZone: http://localhost:8761/eureka
+jwt:
+    tokenHeader: Authorization #JWT存储的请求头
+    secret: mall-admin-secret #JWT加解密使用的密钥
+    expiration: 604800 #JWT的超期限时间(60*60*24*7)
+    tokenHead: 'Bearer ' #JWT负载中拿到开头
+
+secure:
+    ignored:
+        urls: #安全路径白名单
+            - /swagger-ui.html
+            - /swagger-resources/**
+            - /swagger/**
+            - /**/v2/api-docs
+            - /**/*.js
+            - /**/*.css
+            - /**/*.png
+            - /**/*.ico
+            - /webjars/springfox-swagger-ui/**
+            - /actuator/**
+            - /druid/**
+            - /admin/login
+            - /admin/register
+            - /admin/info
+            - /admin/logout
+            - /minio/upload
