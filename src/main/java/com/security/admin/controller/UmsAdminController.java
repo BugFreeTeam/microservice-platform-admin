@@ -1,6 +1,7 @@
 package com.security.admin.controller;
 
 import com.anjuxing.platform.common.base.JsonResult;
+import com.anjuxing.platform.common.exception.ControllerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class UmsAdminController extends CrudController<UmsAdminService, UmsAdmin
     private UmsAdminService umsAdminService;
 
     @PostMapping("/register")
-    public JsonResult register(@RequestBody UmsAdmin model) throws Exception {
+    public JsonResult register(@RequestBody UmsAdmin model) throws ControllerException {
         JsonResult jsonResult=new JsonResult();
         umsAdminService.register(model);
         jsonResult.setMessage("注册成功");
@@ -35,18 +36,11 @@ public class UmsAdminController extends CrudController<UmsAdminService, UmsAdmin
     @PostMapping("/login")
     public JsonResult login(@RequestBody UmsAdmin model){
         JsonResult jsonResult=new JsonResult();
-        try {
-            String token=umsAdminService.login(model);
-            jsonResult.setMessage("登录成功");
-            jsonResult.setResult(SUCCESS);
-            jsonResult.setCode(JsonResult.SUCCESS_CODE);
-            jsonResult.setData(token);
-        }catch (Exception e){
-            e.printStackTrace();
-            jsonResult.setMessage("登录失败");
-            jsonResult.setResult(FAILURE);
-            jsonResult.setCode(JsonResult.FAILURE_CODE);
-        }
+        String token=umsAdminService.login(model);
+        jsonResult.setMessage("登录成功");
+        jsonResult.setResult(SUCCESS);
+        jsonResult.setCode(JsonResult.SUCCESS_CODE);
+        jsonResult.setData(token);
         return jsonResult;
     }
 

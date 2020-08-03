@@ -3,13 +3,6 @@ server:
 spring:
     application:
         name: microservice-platform-admin
-logging:
-    level:
-        root: INFO
-        org.hibernate: INFO
-        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-        org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
-        com.security.admin: ERROR
 eureka:
     instance:
         prefer-ip-address: true
@@ -45,3 +38,4 @@ secure:
             - /admin/info
             - /admin/logout
             - /minio/upload
+            - /test/test

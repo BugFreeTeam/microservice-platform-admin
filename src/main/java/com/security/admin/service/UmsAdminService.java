@@ -1,6 +1,7 @@
 package com.security.admin.service;
 
 import com.anjuxing.platform.common.crud.CrudService;
+import com.anjuxing.platform.common.exception.ServiceException;
 import com.security.admin.model.UmsAdmin;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,7 +18,7 @@ public interface UmsAdminService extends CrudService<UmsAdmin> {
     /**
      * 用户注册
      */
-    public void register(UmsAdmin model) throws Exception;
+    public void register(UmsAdmin model) throws ServiceException;
 
     /**
      * 用户登录

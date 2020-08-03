@@ -1,38 +1,29 @@
 package com.security.admin.common;
 
 import com.anjuxing.platform.common.base.JsonResult;
-import com.anjuxing.platform.common.exception.BaseException;
-import com.security.admin.exception.SysException;
 import com.security.admin.exception.UmsAdminException;
+import com.security.admin.exception.UmsAdminExcetionEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 全局异常处理类
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    private Logger log= LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(value = Exception.class)
-    public ModelAndView defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
-        ModelAndView mav = new ModelAndView();
-        mav.addObject("exception", e);
-        mav.addObject("url", req.getRequestURL());
-        mav.setViewName("error");
-        return mav;
-    }
-
-    @ExceptionHandler(value = BaseException.class)
+    @ExceptionHandler(value = UsernameNotFoundException.class)
     @ResponseBody
-    public JsonResult jsonErrorHandler(HttpServletRequest req, BaseException e) throws Exception {
+    public JsonResult usernameNotFoundHandler(UsernameNotFoundException e) throws Exception {
         JsonResult jsonResult = new JsonResult();
         jsonResult.setResult(JsonResult.FAILURE);
-        jsonResult.setCode(e.getCode());
-        jsonResult.setMessage(e.getMessage()); //根据异常代码表转成相应的文字
+        jsonResult.setCode(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getCode());
+        jsonResult.setMessage(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getMessage());
         return jsonResult;
     }
 
@@ -47,13 +38,14 @@ public class GlobalExceptionHandler {
         return jsonResult;
     }
 
-    @ExceptionHandler(value = SysException.class)
+    @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public JsonResult SystemHandler(SysException e){
+    public JsonResult defaultErrorHandler(Exception e) throws Exception {
         JsonResult jsonResult = new JsonResult();
         jsonResult.setResult(JsonResult.FAILURE);
-        jsonResult.setCode(e.getCode());
-        jsonResult.setMessage(e.getMessage());
+        jsonResult.setCode(JsonResult.FAILURE_CODE);
+        jsonResult.setMessage("未知异常，请联系系统管理员！");
+        log.error("系统错误，原因为："+e);
         return jsonResult;
     }
 

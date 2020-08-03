@@ -2,14 +2,14 @@ package com.security.admin.service.impl;
 
 import com.anjuxing.platform.common.util.DateUtils;
 import com.platform.security.utils.JwtTokenUtil;
-import com.security.admin.exception.SysException;
-import com.security.admin.exception.SystemExceptionEnum;
+import com.security.admin.controller.UmsAdminRoleRelationController;
 import com.security.admin.exception.UmsAdminException;
 import com.security.admin.exception.UmsAdminExcetionEnum;
 import com.security.admin.mapper.UmsResourceMapper;
 import com.security.admin.model.AdminUserDetails;
 import com.security.admin.model.UmsResource;
-import org.omg.CORBA.SystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +34,7 @@ import java.util.List;
 @Service("umsAdminService")
 @Transactional(readOnly = true, rollbackFor = ServiceException.class)
 public class UmsAdminServiceImpl extends CrudServiceImpl<UmsAdminMapper, UmsAdmin> implements UmsAdminService {
+    private Logger log = LoggerFactory.getLogger(UmsAdminServiceImpl.class);
 
     @Autowired
     private UmsAdminMapper umsAdminMapper;
@@ -60,37 +61,30 @@ public class UmsAdminServiceImpl extends CrudServiceImpl<UmsAdminMapper, UmsAdmi
     }
 
     @Transactional(readOnly = false)
-    public void register(UmsAdmin model){
-        try {
-            UmsAdmin umsAdmin=umsAdminMapper.getAdminByUserName(model.getUsername());
-            if(umsAdmin!=null){
-                throw new UmsAdminException(UmsAdminExcetionEnum.USER_EXIST);
-            }else{
-                model.setCreateTime(DateUtils.getCurrentTime());
-                model.setStatus(1);
-                String encodePassword = passwordEncoder.encode(model.getPassword());
-                model.setPassword(encodePassword);
-                umsAdminMapper.save(model);
-            }
-        }catch (Exception e){
-            throw new SysException(SystemExceptionEnum.SYS_ERROR);
+    public void register(UmsAdmin model) throws ServiceException{
+        UmsAdmin umsAdmin = umsAdminMapper.getAdminByUserName(model.getUsername());
+        if (umsAdmin != null) {
+            log.info("用户名：{}已被注册！",model.getUsername());
+            throw new UmsAdminException(UmsAdminExcetionEnum.USER_EXIST);
+        } else {
+            model.setId(1L);
+            model.setCreateTime(DateUtils.getCurrentTime());
+            model.setStatus(1);
+            String encodePassword = passwordEncoder.encode(model.getPassword());
+            model.setPassword(encodePassword);
+            umsAdminMapper.save(model);
         }
-
     }
 
     public String login(UmsAdmin model) {
         String token =null;
-        try {
-            UserDetails userDetails = loadUserByUsername(model.getUsername());
-            if (!passwordEncoder.matches(model.getPassword(), userDetails.getPassword())) {
-                throw new BadCredentialsException("密码不正确");
-            }
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            token = jwtTokenUtil.generateToken(userDetails);
-        }catch (Exception e){
-            System.out.println("登录异常");
+        UserDetails userDetails = loadUserByUsername(model.getUsername());
+        if (!passwordEncoder.matches(model.getPassword(), userDetails.getPassword())) {
+            throw new UmsAdminException(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR);
         }
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        token = jwtTokenUtil.generateToken(userDetails);
         return token;
     }
 
