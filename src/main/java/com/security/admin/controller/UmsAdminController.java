@@ -2,6 +2,8 @@ package com.security.admin.controller;
 
 import com.anjuxing.platform.common.base.JsonResult;
 import com.anjuxing.platform.common.exception.ControllerException;
+import com.anjuxing.platform.common.exception.ServiceException;
+import com.anjuxing.platform.common.util.JsonResultUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,23 +27,20 @@ public class UmsAdminController extends CrudController<UmsAdminService, UmsAdmin
 
     @PostMapping("/register")
     public JsonResult register(@RequestBody UmsAdmin model) throws ControllerException {
-        JsonResult jsonResult=new JsonResult();
         umsAdminService.register(model);
-        jsonResult.setMessage("注册成功");
-        jsonResult.setResult(SUCCESS);
-        jsonResult.setCode(JsonResult.SUCCESS_CODE);
-        return jsonResult;
+        return JsonResultUtils.success();
     }
 
     @PostMapping("/login")
     public JsonResult login(@RequestBody UmsAdmin model){
-        JsonResult jsonResult=new JsonResult();
         String token=umsAdminService.login(model);
-        jsonResult.setMessage("登录成功");
-        jsonResult.setResult(SUCCESS);
-        jsonResult.setCode(JsonResult.SUCCESS_CODE);
-        jsonResult.setData(token);
-        return jsonResult;
+        return JsonResultUtils.success(token);
+    }
+
+    @PostMapping("selectById")
+    public JsonResult test(@RequestBody UmsAdmin model) throws ControllerException {
+        UmsAdmin umsAdmin=umsAdminService.queryById(model.getId());
+        return JsonResultUtils.success(umsAdmin);
     }
 
 }

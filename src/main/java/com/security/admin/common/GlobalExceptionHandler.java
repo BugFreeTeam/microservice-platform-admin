@@ -1,6 +1,7 @@
 package com.security.admin.common;
 
 import com.anjuxing.platform.common.base.JsonResult;
+import com.anjuxing.platform.common.util.JsonResultUtils;
 import com.security.admin.exception.UmsAdminException;
 import com.security.admin.exception.UmsAdminExcetionEnum;
 import org.slf4j.Logger;
@@ -20,33 +21,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = UsernameNotFoundException.class)
     @ResponseBody
     public JsonResult usernameNotFoundHandler(UsernameNotFoundException e) throws Exception {
-        JsonResult jsonResult = new JsonResult();
-        jsonResult.setResult(JsonResult.FAILURE);
-        jsonResult.setCode(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getCode());
-        jsonResult.setMessage(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getMessage());
-        return jsonResult;
+        return JsonResultUtils.error(UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getCode(),UmsAdminExcetionEnum.USER_NAME_PASS_ERROR.getMessage());
     }
 
 
     @ExceptionHandler(value = UmsAdminException.class)
     @ResponseBody
     public JsonResult UmsAdminHandler(UmsAdminException e){
-        JsonResult jsonResult = new JsonResult();
-        jsonResult.setResult(JsonResult.FAILURE);
-        jsonResult.setCode(e.getCode());
-        jsonResult.setMessage(e.getMessage());
-        return jsonResult;
+        return JsonResultUtils.error(e.getCode(),e.getMessage());
     }
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     public JsonResult defaultErrorHandler(Exception e) throws Exception {
-        JsonResult jsonResult = new JsonResult();
-        jsonResult.setResult(JsonResult.FAILURE);
-        jsonResult.setCode(JsonResult.FAILURE_CODE);
-        jsonResult.setMessage("未知异常，请联系系统管理员！");
         log.error("系统错误，原因为："+e);
-        return jsonResult;
+        return JsonResultUtils.error("未知异常，请联系系统管理员！");
     }
 
 }
